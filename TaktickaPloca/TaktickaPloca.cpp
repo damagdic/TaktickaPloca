@@ -11,6 +11,15 @@ TaktickaPloca::TaktickaPloca(HWND hwnd) : hwnd(hwnd) {
         {0.30f, 0.20f}, {0.30f, 0.40f}, {0.30f, 0.60f}, {0.30f, 0.80f},
         {0.45f, 0.40f}, {0.45f, 0.60f}
     };
+
+    opponents = {
+    {0.95f, 0.50f},
+    {0.85f, 0.20f}, {0.85f, 0.40f}, {0.85f, 0.60f}, {0.85f, 0.80f},
+    {0.70f, 0.20f}, {0.70f, 0.40f}, {0.70f, 0.60f}, {0.70f, 0.80f},
+    {0.55f, 0.40f}, {0.55f, 0.60f}
+    };
+
+    ball = { 0.5f, 0.5f };
 }
 
 void TaktickaPloca::Resize(int w, int h) {
@@ -32,18 +41,50 @@ bool TaktickaPloca::IsInsidePlayer(int mx, int my, const Player& p) {
     return std::sqrt(dx * dx + dy * dy) <= radius;
 }
 
+bool TaktickaPloca::IsInsideBall(int mx, int my) {
+    int marginX = windowWidth / 20;
+    int marginY = windowHeight / 20;
+    int fieldWidth = windowWidth - 2 * marginX;
+    int fieldHeight = windowHeight - 2 * marginY;
+
+    int bx = static_cast<int>(marginX + ball.xRatio * fieldWidth);
+    int by = static_cast<int>(marginY + ball.yRatio * fieldHeight);
+    int radius = ((windowWidth < windowHeight) ? windowWidth : windowHeight) / 80;
+
+    int dx = mx - bx;
+    int dy = my - by;
+    return std::sqrt(dx * dx + dy * dy) <= radius;
+}
+
 void TaktickaPloca::OnMouseDown(int x, int y) {
+    selectedIndex = -1;
+    selectedOpponentIndex = -1;
+    selectedBall = -1;
+
     for (size_t i = 0; i < players.size(); ++i) {
         if (IsInsidePlayer(x, y, players[i])) {
             players[i].selected = true;
             selectedIndex = static_cast<int>(i);
-            break;
+            return;
         }
     }
-}
 
+    for (size_t i = 0; i < opponents.size(); ++i) {
+        if (IsInsidePlayer(x, y, opponents[i])) {
+            opponents[i].selected = true;
+            selectedOpponentIndex = static_cast<int>(i);
+            return;
+        }
+    }
+    if (IsInsideBall(x, y)) {
+        ball.selected = true;
+        selectedBall = 1;
+        return;
+    }
+}
 void TaktickaPloca::OnMouseMove(int x, int y, WPARAM wParam) {
-    if ((wParam & MK_LBUTTON) && selectedIndex != -1) {
+        if (!(wParam & MK_LBUTTON)) return;
+
         int marginX = windowWidth / 20;
         int marginY = windowHeight / 20;
         int fieldWidth = windowWidth - 2 * marginX;
@@ -55,16 +96,34 @@ void TaktickaPloca::OnMouseMove(int x, int y, WPARAM wParam) {
         xRatio = std::clamp(xRatio, 0.0f, 1.0f);
         yRatio = std::clamp(yRatio, 0.0f, 1.0f);
 
-        players[selectedIndex].xRatio = xRatio;
-        players[selectedIndex].yRatio = yRatio;
-        InvalidateRect(hwnd, NULL, TRUE);
+        if (selectedIndex != -1) {
+            players[selectedIndex].xRatio = xRatio;
+            players[selectedIndex].yRatio = yRatio;
+        }
+        else if (selectedOpponentIndex != -1) {
+            opponents[selectedOpponentIndex].xRatio = xRatio;
+            opponents[selectedOpponentIndex].yRatio = yRatio;
+        }
+        else if (selectedBall != -1) {
+            ball.xRatio = xRatio;
+            ball.yRatio = yRatio;
+        }
+
+        InvalidateRect(hwnd, NULL, FALSE);
     }
-}
 
 void TaktickaPloca::OnMouseUp() {
     if (selectedIndex != -1) {
         players[selectedIndex].selected = false;
         selectedIndex = -1;
+    }
+    if (selectedOpponentIndex != -1) {
+        opponents[selectedOpponentIndex].selected = false;
+        selectedOpponentIndex = -1;
+    }
+    if (selectedBall != -1) {
+        ball.selected = false;
+        selectedBall = -1;
     }
 }
 
@@ -207,9 +266,33 @@ void TaktickaPloca::DrawPlayers(HDC dc, int width, int height) {
     int marginY = height / 20;
     int playerRadius = min(width, height) / 50;
 
+    HBRUSH whiteBrush = CreateSolidBrush(RGB(255, 255, 255));
+    HBRUSH oldBrush = (HBRUSH)SelectObject(dc, whiteBrush);
     for (const auto& p : players) {
         int px = static_cast<int>(marginX + p.xRatio * (width - 2 * marginX));
         int py = static_cast<int>(marginY + p.yRatio * (height - 2 * marginY));
         Ellipse(dc, px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius);
     }
+    DeleteObject(whiteBrush);
+
+    HBRUSH redBrush = CreateSolidBrush(RGB(255, 0, 0));
+    SelectObject(dc, redBrush);
+	for (const auto& p : opponents) {
+		int px = static_cast<int>(marginX + p.xRatio * (width - 2 * marginX));
+		int py = static_cast<int>(marginY + p.yRatio * (height - 2 * marginY));
+		Ellipse(dc, px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius);
+	}
+    SelectObject(dc, oldBrush);
+    DeleteObject(redBrush);
+
+    // Lopta
+    int ballRadius = playerRadius / 2;
+    int bx = static_cast<int>(marginX + ball.xRatio * (width - 2 * marginX));
+    int by = static_cast<int>(marginY + ball.yRatio * (height - 2 * marginY));
+
+    HBRUSH blackBrush = CreateSolidBrush(RGB(0, 0, 0));
+    HBRUSH oldBallBrush = (HBRUSH)SelectObject(dc, blackBrush);
+    Ellipse(dc, bx - ballRadius, by - ballRadius, bx + ballRadius, by + ballRadius);
+    SelectObject(dc, oldBallBrush);
+    DeleteObject(blackBrush);
 }

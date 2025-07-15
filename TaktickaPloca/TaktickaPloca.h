@@ -25,10 +25,21 @@ private:
         std::string name;
     };
 
+    struct Ball {
+        float xRatio;
+        float yRatio;
+        bool selected = false;
+    };
+
     HWND hwnd;
     std::vector<Player> players;
+    std::vector<Player> opponents;
+    Ball ball;
+    int selectedBall = -1;
     int selectedIndex = -1;
+    int selectedOpponentIndex = -1;
     int windowWidth = 1, windowHeight = 1;
 
     bool IsInsidePlayer(int x, int y, const Player& p);
+    bool IsInsideBall(int mx, int my);
 };

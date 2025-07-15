@@ -41,9 +41,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         break;
 
     case WM_SIZE:
-        if (ploca) ploca->Resize(LOWORD(lParam), HIWORD(lParam));
+        if (ploca) {
+            ploca->Resize(LOWORD(lParam), HIWORD(lParam));
+            InvalidateRect(hWnd, NULL, FALSE);  
+        }
         break;
-
     case WM_LBUTTONDOWN:
         if (ploca) ploca->OnMouseDown(LOWORD(lParam), HIWORD(lParam));
         break;
