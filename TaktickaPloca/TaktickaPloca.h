@@ -1,3 +1,34 @@
 #pragma once
+#include <windows.h>
+#include <vector>
+#include <string>
 
-#include "resource.h"
+class TaktickaPloca {
+public:
+    TaktickaPloca(HWND hwnd);
+    void Draw(HDC hdc);
+    void DrawField(HDC dc, int width, int height);
+    void DrawGoals(HDC dc, int width, int height);
+    void DrawBoxes(HDC dc, int width, int height);
+    void DrawPenaltyPointsAndCircle(HDC dc, int width, int height);
+    void DrawPlayers(HDC dc, int width, int height);
+    void OnMouseDown(int x, int y);
+    void OnMouseMove(int x, int y, WPARAM wParam);
+    void OnMouseUp();
+    void Resize(int width, int height);
+
+private:
+    struct Player {
+        float xRatio, yRatio;
+        bool selected = false;
+        int number = 0;
+        std::string name;
+    };
+
+    HWND hwnd;
+    std::vector<Player> players;
+    int selectedIndex = -1;
+    int windowWidth = 1, windowHeight = 1;
+
+    bool IsInsidePlayer(int x, int y, const Player& p);
+};
