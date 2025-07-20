@@ -5,6 +5,7 @@
 #define IDS_APP_TITLE			103
 
 #define IDR_MAINFRAME			128
+#define IDR_MAINMENU			101
 #define IDD_TAKTICKAPLOCA_DIALOG	102
 #define IDD_ABOUTBOX			103
 #define IDM_ABOUT				104
@@ -15,6 +16,9 @@
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
+#define ID_VIEW_FULL 40001
+#define ID_VIEW_HALF 40002
+
 #endif
 // Next default values for new objects
 //

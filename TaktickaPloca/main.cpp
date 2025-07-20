@@ -2,10 +2,11 @@
 #include "resource.h"
 #include "TaktickaPloca.h"
 
+
 TaktickaPloca* ploca = nullptr;
 HINSTANCE hInst;
 WCHAR szWindowClass[] = L"TaktickaPlocaKlasa";
-WCHAR szTitle[] = L"Taktička Ploča";
+WCHAR szTitle[] = L"Tactical Board";
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -17,7 +18,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int nCmdShow) {
     wc.lpszClassName = szWindowClass;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wc.lpszMenuName = MAKEINTRESOURCE(IDR_MAINMENU);
     RegisterClass(&wc);
+
 
     HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, 0, 1000, 600, nullptr, nullptr, hInstance, nullptr);
@@ -43,9 +46,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     case WM_SIZE:
         if (ploca) {
             ploca->Resize(LOWORD(lParam), HIWORD(lParam));
-            InvalidateRect(hWnd, NULL, FALSE);  
+            InvalidateRect(hWnd, NULL, FALSE);
         }
         break;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDM_EXIT:
+            PostQuitMessage(0);
+            break;
+
+        case IDM_ABOUT:
+            MessageBox(hWnd, L"Tactical board v1.0\nAutor: Damir Magdić", L"Introduce your football tactics to world!", MB_OK | MB_ICONINFORMATION);
+            break;
+
+        case ID_VIEW_FULL:
+            if (ploca) ploca->SetViewMode(TaktickaPloca::ViewMode::FullField);
+            InvalidateRect(hWnd, NULL, TRUE);
+            break;
+
+        case ID_VIEW_HALF:
+            if (ploca) ploca->SetViewMode(TaktickaPloca::ViewMode::HalfField);
+            InvalidateRect(hWnd, NULL, TRUE);
+            break;
+        }
+        break;
+
     case WM_LBUTTONDOWN:
         if (ploca) ploca->OnMouseDown(LOWORD(lParam), HIWORD(lParam));
         break;
