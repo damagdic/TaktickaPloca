@@ -27,12 +27,24 @@
     <ClInclude Include="TaktickaPloca.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="nwpwin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main_window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TaktickaPloca.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nwpwin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

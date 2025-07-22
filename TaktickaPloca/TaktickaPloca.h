@@ -5,7 +5,9 @@
 
 class TaktickaPloca {
 public:
-    TaktickaPloca(HWND hwnd);
+
+    TaktickaPloca();
+    void SetWindowHandle(HWND hwnd);
     void Draw(HDC hdc);
     void DrawField(HDC dc, int width, int height);
     void DrawGoals(HDC dc, int width, int height);
@@ -23,6 +25,7 @@ public:
     void SetViewMode(ViewMode mode);
 
 private:
+    HWND hwnd = nullptr;
     struct Player {
         float xRatio, yRatio;
         bool selected = false;
@@ -37,7 +40,6 @@ private:
     };
 
 
-    HWND hwnd;
     std::vector<Player> players;
     std::vector<Player> opponents;
     Ball ball;

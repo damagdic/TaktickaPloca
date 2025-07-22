@@ -4,8 +4,10 @@
 #include <cmath>
 #include <algorithm>
 
-
-TaktickaPloca::TaktickaPloca(HWND hwnd) : hwnd(hwnd) {
+void TaktickaPloca::SetWindowHandle(HWND hwnd) {
+    this->hwnd = hwnd;
+}
+TaktickaPloca::TaktickaPloca() {
     players = {
         {0.05f, 0.50f},
         {0.15f, 0.20f}, {0.15f, 0.40f}, {0.15f, 0.60f}, {0.15f, 0.80f},
