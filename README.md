@@ -8,6 +8,7 @@ Ova aplikacija predstavlja taktičku ploču za nogomet u kojoj korisnik može:
 - Crtanje linija (dodavanja) između igrača
 - Automatski izlazak iz načina crtanja linija
 - Sve se crta pomoću GDI funkcija uz podršku za double buffering (bez treperenja)
+- Save/Load taktika
 
 # Funkcionalnosti
 
@@ -40,6 +41,7 @@ Ostalo:
 - Double buffering (pomoću `CreateCompatibleDC`, `BitBlt`) za glatko crtanje
 - Skalabilni teren — prilagođava se veličini prozora
 - Crtanje pomoću GDI funkcija (Ellipse, Rectangle, LineTo, DrawText)
+- Spremanje fileova kao .txt te mogućnost otvaranja istih
 
 # Kako pokrenuti projekt
 
