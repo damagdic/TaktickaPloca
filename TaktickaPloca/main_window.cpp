@@ -1,12 +1,10 @@
 ﻿#include "main_window.h"
-#include <windowsx.h>  // za GET_X_LPARAM i sl.
-#include "TaktickaPloca.h"  
-#include "Resource.h"
+#include <windowsx.h>
+#include "resource.h"
+#include "TaktickaPloca.h"
+#include "gdi.h"
 
-
-main_window::main_window() {
-    // možeš inicijalizirati nešto ako želiš
-}
+main_window::main_window() {}
 
 LPCWSTR main_window::class_name() const {
     return L"MainWindowClass";
@@ -15,7 +13,6 @@ LPCWSTR main_window::class_name() const {
 LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
     case WM_CREATE: {
-        ploca.SetWindowHandle(*this);  
         RECT r;
         GetClientRect(*this, &r);
         ploca.Resize(r.right, r.bottom);
@@ -32,7 +29,7 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
         return 0;
     }
     case WM_MOUSEMOVE: {
-        ploca.OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), wParam);
+        if (ploca.OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), wParam))
             InvalidateRect(*this, nullptr, FALSE);
         return 0;
     }
@@ -53,12 +50,11 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
         case IDM_EXIT:
             PostMessage(*this, WM_CLOSE, 0, 0);
             return 0;
-        case IDM_ABOUT: {
-            MessageBox(*this, L"Author: Damir Magdić\nVerzija: 1.0", L"This is football tactial board! ENJOY", MB_OK | MB_ICONINFORMATION);
+        case IDM_ABOUT:
+            MessageBox(*this, L"Author: Damir Magdić\nVerzija: 1.0", L"This is football tactical board! ENJOY", MB_OK | MB_ICONINFORMATION);
             return 0;
         }
-                      break;
-        }
+        break;
     }
     case WM_PAINT: {
         PAINTSTRUCT ps;

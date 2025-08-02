@@ -1,6 +1,8 @@
 ﻿#include "nwpwin.h"
 #include "main_window.h"
 #include "Resource.h"
+#include "TaktickaPloca.h"
+#include "gdi.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
     nwp::application app(hInstance);

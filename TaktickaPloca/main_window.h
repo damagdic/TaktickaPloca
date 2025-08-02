@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "nwpwin.h"
-#include "TaktickaPloca.h"  // ili tvoj header za ploču
+#include "TaktickaPloca.h"
+#include "gdi.h"
 
 class main_window : public nwp::window {
     TaktickaPloca ploca;

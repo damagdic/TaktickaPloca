@@ -139,6 +139,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
+    <ClInclude Include="gdi.h" />
     <ClInclude Include="main_window.h" />
     <ClInclude Include="nwpwin.h" />
     <ClInclude Include="Resource.h" />
