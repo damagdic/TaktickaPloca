@@ -5,6 +5,7 @@ struct pen {
 	HGDIOBJ old;
 	HDC dc;
 	HPEN h;
+	HPEN handle;
 	pen(HDC dc, COLORREF color, int width = 1, int style = PS_SOLID) : dc(dc) {
 		h = CreatePen(style, width, color);
 		old = SelectObject(dc, h);
@@ -13,6 +14,7 @@ struct pen {
 		SelectObject(dc, old);
 		DeleteObject(h);
 	}
+	operator HGDIOBJ() const { return handle; }
 };
 
 struct brush {
@@ -52,6 +54,23 @@ struct font {
 		SelectObject(dc, old);
 	}
 };
+
+inline HFONT create_bold_font(int pointSize = 14, const wchar_t* name = L"Segoe UI") {
+	HDC screenDC = GetDC(NULL);
+	int height = -MulDiv(pointSize, GetDeviceCaps(screenDC, LOGPIXELSY), 72);
+	ReleaseDC(NULL, screenDC);
+
+	return CreateFont(
+		height, 0, 0, 0,
+		FW_BOLD, FALSE, FALSE, FALSE,
+		ANSI_CHARSET,
+		OUT_DEFAULT_PRECIS,
+		CLIP_DEFAULT_PRECIS,
+		DEFAULT_QUALITY,
+		DEFAULT_PITCH | FF_DONTCARE,
+		name
+	);
+}
 
 struct dc {
 	HDC real, mem;

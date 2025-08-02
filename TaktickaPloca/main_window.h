@@ -10,4 +10,6 @@ public:
     main_window();  // konstruktor
     LPCWSTR class_name() const override;
     LRESULT on_message(UINT message, WPARAM wParam, LPARAM lParam) override;
+    void SaveTacticDialog();
+    void LoadTacticDialog();
 };
