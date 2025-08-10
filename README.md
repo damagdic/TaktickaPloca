@@ -18,8 +18,8 @@ Nogometni teren:
 - Prilagodljiv prozoru (responsive)
 
 Igrači:
-- Bijela (s golmanom u plavom)
-- Crvena (s golmanom u crnom)
+- Bijeli (s plavim golmanom)
+- Crveni (s crnim golmanom)
 - Mogu se klikom i povlačenjem pomjerati po terenu
 
 Lopta:
