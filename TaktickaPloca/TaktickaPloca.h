@@ -36,6 +36,9 @@ public:
     void OnLineStart(int x, int y);
     void OnLineEnd(int x, int y);
 
+    void ClearLastLine();
+    void ClearAllLines();
+
     bool SaveTactic(const std::wstring& filename) const;
     bool LoadTactic(const std::wstring& filename);
 
@@ -71,6 +74,7 @@ private:
     void DrawPlayers(HDC dc, int width, int height);
     void DrawHalfField(HDC dc, int width, int height);
     void DrawPlayersHalf(HDC dc, int width, int height);
+    void DrawBall(HDC dc, int cx, int cy, int r);
     void DrawLines(HDC dc);
     void ResetPositions();
     void InitPositions();

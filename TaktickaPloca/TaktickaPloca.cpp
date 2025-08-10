@@ -199,7 +199,7 @@ void TaktickaPloca::DrawBoxes(HDC dc, int width, int height) {
 
     null_brush nb(dc);
 
-    // Šesnaesterci
+    // boxes
     int boxWidth = width / 8;
     int boxHeight = goalWidth * 2;
     int boxY1 = (height - boxHeight) / 2;
@@ -208,7 +208,7 @@ void TaktickaPloca::DrawBoxes(HDC dc, int width, int height) {
     Rectangle(dc, marginX, boxY1, marginX + boxWidth, boxY2);
     Rectangle(dc, width - marginX - boxWidth, boxY1, width - marginX, boxY2);
 
-    // Peterci
+    // five meters line
     int smallBoxWidth = width / 20;
     int smallBoxHeight = static_cast<int>(goalWidth * 1.2);
     int smallBoxY1 = (height - smallBoxHeight) / 2;
@@ -227,7 +227,7 @@ void TaktickaPloca::DrawPenaltyPointsAndCircle(HDC dc, int width, int height) {
 
     null_brush nb(dc);  
 
-    // Penal točke
+    // penalty spots
     int penaltyRadius = 3;
     int penaltyY = height / 2;
     int penaltyLeftX = static_cast<int>(marginX + boxWidth * 0.75);
@@ -238,12 +238,12 @@ void TaktickaPloca::DrawPenaltyPointsAndCircle(HDC dc, int width, int height) {
     Ellipse(dc, penaltyRightX - penaltyRadius, penaltyY - penaltyRadius,
         penaltyRightX + penaltyRadius, penaltyY + penaltyRadius);
 
-    // Krug na centru
+    // center circle
     int circleRadius = (width < height ? width : height) / 10;
     Ellipse(dc, width / 2 - circleRadius, height / 2 - circleRadius,
         width / 2 + circleRadius, height / 2 + circleRadius);
 
-    // Polukrugovi
+    // halfcircles
     int arcRadius = circleRadius / 2;
     int arcCenterY = height / 2;
 
@@ -265,7 +265,7 @@ void TaktickaPloca::DrawPlayers(HDC dc, int width, int height) {
     int marginY = height / 20;
     int playerRadius = (width < height ? width : height) / 40;
 
-    // Igrači - bijeli
+	// white players
     brush white(dc, RGB(255, 255, 255));
     selector selWhite(dc, white.get());
 
@@ -284,7 +284,7 @@ void TaktickaPloca::DrawPlayers(HDC dc, int width, int height) {
         SetTextColor(dc, RGB(0, 0, 0));
 
         if (i == 0) {
-            // Golman - plavi
+            // blue keeper
             pen noPen(dc, RGB(0, 0, 0), 0, PS_NULL);
             selector selPen(dc, noPen.h);
             brush blue(dc, RGB(0, 128, 255));
@@ -294,7 +294,7 @@ void TaktickaPloca::DrawPlayers(HDC dc, int width, int height) {
             DrawTextW(dc, number.c_str(), -1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         }
         else {
-            // Ostali - bijeli
+            
             pen noPen(dc, RGB(0, 0, 0), 0, PS_NULL);
             selector selPen(dc, noPen.h);
             ::Ellipse(dc, px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius);
@@ -318,7 +318,7 @@ void TaktickaPloca::DrawPlayers(HDC dc, int width, int height) {
         SetTextColor(dc, RGB(255, 255, 255));
 
         if (i == 0) {
-            // Crni golman
+            // white keeper
             pen noPen(dc, RGB(0, 0, 0), 0, PS_NULL);
             selector selPen(dc, noPen.h);
             brush black(dc, RGB(0, 0, 0));
@@ -326,7 +326,7 @@ void TaktickaPloca::DrawPlayers(HDC dc, int width, int height) {
             Ellipse(dc, px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius);
         }
         else {
-            // Crveni igrači
+            // red players
             pen noPen(dc, RGB(0, 0, 0), 0, PS_NULL);
             selector selPen(dc, noPen.h);
             brush redBrush(dc, RGB(255, 0, 0));
@@ -334,7 +334,7 @@ void TaktickaPloca::DrawPlayers(HDC dc, int width, int height) {
             Ellipse(dc, px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius);
         }
 
-        // Broj centrirano
+        // number centered
         RECT r{ px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius };
         DrawTextW(dc, number.c_str(), -1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     }
@@ -343,23 +343,21 @@ void TaktickaPloca::DrawPlayers(HDC dc, int width, int height) {
     int bx = static_cast<int>(marginX + ball.xRatio * (width - 2 * marginX));
     int by = static_cast<int>(marginY + ball.yRatio * (height - 2 * marginY));
 
-    brush black(dc, RGB(0, 0, 0));
-    selector selBlack(dc, black.get());
-    Ellipse(dc, bx - ballRadius, by - ballRadius, bx + ballRadius, by + ballRadius);
+    DrawBall(dc, bx, by, ballRadius);
 }
 
 void TaktickaPloca::DrawHalfField(HDC dc, int width, int height) {
     int marginX = width / 20;
     int marginY = height / 20;
 
-    // Okvir preko cijelog prozora
+    // window framework
     MoveToEx(dc, marginX, marginY, NULL);
     LineTo(dc, width - marginX, marginY);
     LineTo(dc, width - marginX, height - marginY);
     LineTo(dc, marginX, height - marginY);
     LineTo(dc, marginX, marginY);
 
-    // Gol
+    // goal
     int goalWidth = (height - 2 * marginY) / 4;
     int goalOffsetY = (height - goalWidth) / 2;
     int goalDepth = width / 50;
@@ -375,20 +373,19 @@ void TaktickaPloca::DrawPlayersHalf(HDC dc, int width, int height) {
     int fieldWidth = width - 2 * marginX;
     int fieldHeight = height - 2 * marginY;
 
-    // Postavke fonta
     int pointSize = static_cast<int>(playerRadius * 1.2);
     HFONT boldFont = create_bold_font(pointSize);
     SetBkMode(dc, TRANSPARENT);
 
-    // Crtanje igrača
+ 
     for (size_t i = 0; i < players.size(); ++i) {
         const auto& p = players[i];
 
-        int px = static_cast<int>(marginX + (p.xRatio * 2) * fieldWidth);  // skaliranje za half-field
+        int px = static_cast<int>(marginX + (p.xRatio * 2) * fieldWidth);  // scalling for half field
         int py = static_cast<int>(marginY + p.yRatio * fieldHeight);
         std::wstring number = std::to_wstring(i + 1);
 
-        // Selektiraj font i boju
+        // selected font and color
         font selFont(dc, boldFont);
         SetTextColor(dc, RGB(0, 0, 0));
 
@@ -396,35 +393,42 @@ void TaktickaPloca::DrawPlayersHalf(HDC dc, int width, int height) {
         selector selPen(dc, noPen.h);
 
         if (i == 0) {
-            // Plavi golman
+            // blue keeper
             brush blue(dc, RGB(0, 128, 255));
             selector selBlue(dc, blue.get());
             Ellipse(dc, px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius);
         }
         else {
-            // Bijeli igrači
+			// white players
             brush white(dc, RGB(255, 255, 255));
             selector selWhite(dc, white.get());
             Ellipse(dc, px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius);
         }
 
-        // Centrirani broj
+        // centered number
         RECT r{ px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius };
         DrawTextW(dc, number.c_str(), -1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     }
 
-    // Lopta
+    // ball
     int ballRadius = playerRadius / 2;
     int bx = static_cast<int>(marginX + ball.xRatio * fieldWidth * 2);
     int by = static_cast<int>(marginY + ball.yRatio * fieldHeight);
 
-    brush black(dc, RGB(0, 0, 0));
-    selector selBlack(dc, black.get());
-    Ellipse(dc, bx - ballRadius, by - ballRadius, bx + ballRadius, by + ballRadius);
+    DrawBall(dc, bx, by, ballRadius);
+}
+
+void TaktickaPloca::DrawBall(HDC dc, int cx, int cy, int r) {
+    brush orange(dc, RGB(255, 140, 0)); selector selOrange(dc, orange.get());
+    pen black(dc, RGB(0, 0, 0), 2); selector selBlack(dc, black.h);
+    Ellipse(dc, cx - r, cy - r, cx + r, cy + r);
+
+    brush blk(dc, RGB(0, 0, 0)); selector selBlk(dc, blk.get());
+    Ellipse(dc, cx, cy, cx, cy);
 }
 
 void TaktickaPloca::DrawLines(HDC dc) {
-    pen p(dc, RGB(0, 0, 0), 2);  // crna linija
+    pen p(dc, RGB(0, 0, 0), 2);  // black line
     selector selPen(dc, p);
 
     int marginX = windowWidth / 20;
@@ -439,11 +443,11 @@ void TaktickaPloca::DrawLines(HDC dc) {
         int x2 = static_cast<int>(marginX + line.end.xRatio * fieldWidth * scaleX);
         int y2 = static_cast<int>(marginY + line.end.yRatio * fieldHeight);
 
-        // Linija
+        // line
         MoveToEx(dc, x1, y1, nullptr);
         LineTo(dc, x2, y2);
 
-        // Strelica
+        // arrow
         const double angle = atan2(y2 - y1, x2 - x1);
         const int arrowLength = 10;
         const int arrowWidth = 5;
@@ -497,19 +501,27 @@ void TaktickaPloca::OnLineEnd(int x, int y) {
 
     float scaleX = (currentView == ViewMode::HalfField) ? 2.0f : 1.0f;
 
-    // Preračunavanje početne točke linije u xRatio/yRatio
     Line l;
     l.start.xRatio = ((lineStart.x - marginX) / (float)fieldWidth) / scaleX;
     l.start.yRatio = (lineStart.y - marginY) / (float)fieldHeight;
 
-    // Preračunavanje krajnje točke linije u xRatio/yRatio
     l.end.xRatio = ((x - marginX) / (float)fieldWidth) / scaleX;
     l.end.yRatio = (y - marginY) / (float)fieldHeight;
 
     lines.push_back(l);
 
     drawingLine = false;
-    SetMode(Mode::Normal);
+}
+
+void TaktickaPloca::ClearLastLine() {
+    if (!lines.empty())
+        lines.pop_back();
+    drawingLine = false;
+}
+
+void TaktickaPloca::ClearAllLines() {
+    lines.clear();
+    drawingLine = false;
 }
 
 bool TaktickaPloca::SaveTactic(const std::wstring& filename) const {
@@ -535,39 +547,47 @@ bool TaktickaPloca::SaveTactic(const std::wstring& filename) const {
 
 bool TaktickaPloca::LoadTactic(const std::wstring& filename) {
     std::wifstream file(filename);
-    if (!file)
-        return false;
+    if (!file) return false;
 
-    players.clear();
-    opponents.clear();
-    lines.clear();
+    std::vector<Player> pTmp, oTmp;
+    Player ballTmp = ball;
+    std::vector<Line>  linesTmp = lines;
+    ViewMode viewTmp = currentView;
 
     std::wstring type;
     while (file >> type) {
         if (type == L"VIEWMODE") {
-            std::wstring mode;
-            file >> mode;
-            currentView = (mode == L"FULL") ? ViewMode::FullField : ViewMode::HalfField;
+            std::wstring mode; if (!(file >> mode)) return false;
+            if (mode == L"FULL") viewTmp = ViewMode::FullField;
+            else if (mode == L"HALF") viewTmp = ViewMode::HalfField;
+            else return false;
         }
         else if (type == L"BALL") {
-            file >> ball.xRatio >> ball.yRatio;
+            if (!(file >> ballTmp.xRatio >> ballTmp.yRatio)) return false;
         }
         else if (type == L"PLAYER") {
-            Player p;
-            file >> p.xRatio >> p.yRatio;
-            players.push_back(p);
+            Player p; if (!(file >> p.xRatio >> p.yRatio)) return false;
+            pTmp.push_back(p);
         }
         else if (type == L"OPPONENT") {
-            Player o;
-            file >> o.xRatio >> o.yRatio;
-            opponents.push_back(o);
+            Player o; if (!(file >> o.xRatio >> o.yRatio)) return false;
+            oTmp.push_back(o);
         }
         else if (type == L"LINE") {
-            Line l;
-            file >> l.start.xRatio >> l.start.yRatio >> l.end.xRatio >> l.end.yRatio;
-            lines.push_back(l);
+            Line l; if (!(file >> l.start.xRatio >> l.start.yRatio >> l.end.xRatio >> l.end.yRatio)) return false;
+            linesTmp.push_back(l);
+        }
+        else {
+            return false; 
         }
     }
+
+    // everything is read successfully, update current state
+    currentView = viewTmp;
+    ball = ballTmp;
+    players = pTmp.empty() ? players : pTmp;     
+    opponents = oTmp.empty() ? opponents : oTmp;
+    lines = linesTmp;
 
     return true;
 }

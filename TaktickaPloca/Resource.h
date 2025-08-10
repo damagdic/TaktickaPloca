@@ -17,6 +17,12 @@
 #define ID_EDIT_NORMAL                  32772
 #define ID_FILE_SAVETACTIC              32773
 #define ID_FILE_LOADTACTIC              32774
+#define ID_EDIT_CLEARLASTLINE           32775
+#define ID_EDIT_CLEARALL                32776
+#define ID_EDIT_LINE                    32777
+#define ID_LINE_ADDLINE              32778
+#define ID_LINE_CLEARLASTLINE        32779
+#define ID_LINE_CLEARALL             32780
 #define ID_VIEW_FULL                    40001
 #define ID_VIEW_HALF                    40002
 #define IDC_STATIC                      -1
@@ -27,7 +33,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        129
-#define _APS_NEXT_COMMAND_VALUE         32775
+#define _APS_NEXT_COMMAND_VALUE         32784
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

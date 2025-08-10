@@ -6,6 +6,20 @@
 
 main_window::main_window() {}
 
+static void CheckViewRadio(HWND hWnd, UINT checkedID) {
+    HMENU m = GetMenu(hWnd);
+    HMENU view = GetSubMenu(m, 1);
+    CheckMenuRadioItem(view, ID_VIEW_FULL, ID_VIEW_HALF, checkedID, MF_BYCOMMAND);
+}
+
+static void SyncNormalCheck(HWND hwnd, bool isNormal) {
+    HMENU m = GetMenu(hwnd);
+    HMENU edit = GetSubMenu(m, 2); // Edit
+    CheckMenuItem(edit, ID_EDIT_NORMAL,
+        MF_BYCOMMAND | (isNormal ? MF_CHECKED : MF_UNCHECKED));
+}
+
+
 LPCWSTR main_window::class_name() const {
     return L"MainWindowClass";
 }
@@ -16,6 +30,11 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
         RECT r;
         GetClientRect(*this, &r);
         ploca.Resize(r.right, r.bottom);
+
+        ploca.SetViewMode(TaktickaPloca::ViewMode::FullField);
+        CheckViewRadio(*this, ID_VIEW_FULL);
+        ploca.SetMode(TaktickaPloca::Mode::Normal);
+        SyncNormalCheck(*this, true);
         return 0;
     }
     case WM_SIZE: {
@@ -24,6 +43,7 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
         return 0;
     }
     case WM_LBUTTONDOWN: {
+        SetFocus(*this);
         int x = GET_X_LPARAM(lParam);
         int y = GET_Y_LPARAM(lParam);
         if (ploca.IsInAddLineMode())
@@ -48,22 +68,96 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
             InvalidateRect(*this, nullptr, FALSE);
         return 0;
     }
+
+    case WM_KEYDOWN: {
+        switch (wParam) {
+        case VK_CONTROL:
+
+            if (!ctrlHeld_ && ((lParam & (1 << 30)) == 0)) {
+                ctrlHeld_ = true;
+
+                if (!ploca.IsInAddLineMode()) {
+                    ploca.SetMode(TaktickaPloca::Mode::AddLine);
+                    ctrlActivatedAddLine_ = true;      
+                    SyncNormalCheck(*this, false);     
+                }
+                else {
+                    ctrlActivatedAddLine_ = false;     
+                }
+            }
+            return 0;
+
+        case VK_ESCAPE:
+
+            ctrlHeld_ = false;
+            ctrlActivatedAddLine_ = false;
+            ploca.SetMode(TaktickaPloca::Mode::Normal);
+            SyncNormalCheck(*this, true);              
+            InvalidateRect(*this, nullptr, FALSE);
+            return 0;
+        }
+        break;
+    }
+
+    case WM_KEYUP: {
+        switch (wParam) {
+        case VK_CONTROL:
+            ctrlHeld_ = false;
+
+            if (ctrlActivatedAddLine_) {
+                ploca.SetMode(TaktickaPloca::Mode::Normal);
+                ctrlActivatedAddLine_ = false;
+                SyncNormalCheck(*this, true);        
+                InvalidateRect(*this, nullptr, FALSE);
+            }
+            return 0;
+
+        case VK_ESCAPE:
+
+            ctrlHeld_ = false;
+            ctrlActivatedAddLine_ = false;
+            ploca.SetMode(TaktickaPloca::Mode::Normal);
+            SyncNormalCheck(*this, true);
+            InvalidateRect(*this, nullptr, FALSE);
+            return 0;
+        }
+        break;
+    }
+
     case WM_COMMAND: {
         switch (LOWORD(wParam)) {
         case ID_VIEW_FULL:
             ploca.SetViewMode(TaktickaPloca::ViewMode::FullField);
+            CheckViewRadio(*this, ID_VIEW_FULL);
             InvalidateRect(*this, nullptr, TRUE);
             return 0;
         case ID_VIEW_HALF:
             ploca.SetViewMode(TaktickaPloca::ViewMode::HalfField);
+			CheckViewRadio(*this, ID_VIEW_HALF);
             InvalidateRect(*this, nullptr, TRUE);
             return 0;
-        case ID_EDIT_ADDLINE:
+
+        case ID_LINE_ADDLINE:
             ploca.SetMode(TaktickaPloca::Mode::AddLine);
+            ctrlActivatedAddLine_ = false;
+            SyncNormalCheck(*this, false);
             return 0;
+
+		case ID_LINE_CLEARLASTLINE:
+			ploca.ClearLastLine();
+			InvalidateRect(*this, nullptr, TRUE);
+			return 0;
+		case ID_LINE_CLEARALL:
+			ploca.ClearAllLines();
+			InvalidateRect(*this, nullptr, TRUE);
+			return 0;
+
         case ID_EDIT_NORMAL:
             ploca.SetMode(TaktickaPloca::Mode::Normal);
+            ctrlActivatedAddLine_ = false;          
+            SyncNormalCheck(*this, true);
             return 0;
+
         case ID_FILE_SAVETACTIC:
             SaveTacticDialog();
             return 0;
@@ -130,3 +224,4 @@ void main_window::LoadTacticDialog() {
         }
     }
 }
+
