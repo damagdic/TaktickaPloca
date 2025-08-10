@@ -7,7 +7,7 @@ Ova aplikacija predstavlja taktičku ploču za nogomet u kojoj korisnik može:
 - Pomjerati loptu po terenu
 - Crtanje linija (dodavanja) između igrača
 - Automatski izlazak iz načina crtanja linija
-- Sve se crta pomoću GDI funkcija uz podršku za double buffering (bez treperenja)
+- Crtati pomoću GDI funkcija uz podršku za double buffering (bez treperenja)
 - Save/Load taktika
 
 # Funkcionalnosti
@@ -27,8 +27,8 @@ Lopta:
 - Može se pomjerati po istom principu kao i igrači
 
 Crtanje linija:
-- U meniju "Edit" možeš uključiti "Add Line Mode"
-- Klikom na početnu točku, pa na završnu, nacrta se žuta linija sa strelicom
+- U meniju "Edit" može se uključiti "Add Line Mode"
+- Klikom na početnu točku, pa na završnu, crta se crna linija sa strelicom
 - Automatski izlazak iz načina crtanja:
    nakon nacrtane linije ili ako se klikne na igrača/loptu
 
@@ -45,7 +45,7 @@ Ostalo:
 
 # Kako pokrenuti projekt
 
-1. Otvori `.sln` projekt u Visual Studiu
-2. Provjeri da koristiš **C++20** u Debug i Release konfiguraciji:
+1. Otvoriti `.sln` projekt u Visual Studiu
+2. Provjeriti koristi li se **C++20** u Debug i Release konfiguraciji:
    - Project → Properties → C/C++ → Language → `C++20`
 3. Build & Run (`Ctrl+F5`)
