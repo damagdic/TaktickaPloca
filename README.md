@@ -5,7 +5,7 @@ Ova aplikacija predstavlja taktičku ploču za nogomet u kojoj korisnik može:
 - Pogled na igralište sa 11 igrača -> trening opcija
 - Pomjerati igrače bijelog i crvenog tima po terenu
 - Pomjerati loptu po terenu
-- Crtanje linija (dodavanja) između igrača
+- Crtanje i brisanje linija (dodavanja) između igrača
 - Automatski izlazak iz načina crtanja linija
 - Crtati pomoću GDI funkcija uz podršku za double buffering (bez treperenja)
 - Save/Load taktika
@@ -23,19 +23,21 @@ Igrači:
 - Mogu se klikom i povlačenjem pomjerati po terenu
 
 Lopta:
-- Crna kružnica
+- Crna kružnica sa narančastom unutrašnjosti (radi bolje vidljivosti)
 - Može se pomjerati po istom principu kao i igrači
 
 Crtanje linija:
-- U meniju "Edit" može se uključiti "Add Line Mode"
-- Klikom na početnu točku, pa na završnu, crta se crna linija sa strelicom
+- U meniju "Edit/Line" može se uključiti "Add Line Mode"
+- Klikom na početnu točku, pa na završnu, crta se crna linija sa strelicom, također moguće držanjem tipke CTRL crtati linije
+- Klikom na ClearLastLine ili ClearAllLines omogućene su pripadne radnje
 - Automatski izlazak iz načina crtanja:
-   nakon nacrtane linije ili ako se klikne na igrača/loptu
+   - klikom na Normal mode
+   - tipkom Escape
 
 Pogledi: 
 - Full Field — cijeli teren
 - Half Field — lijeva polovica, zumirana
-- Promjenom pogleda linije i pozicije se resetiraju
+- Promjenom pogleda linije i pozicije se resetiraju, klikom na selektirani pogled, resetiramo postojeću formaciju
 
 Ostalo:
 - Double buffering (pomoću `CreateCompatibleDC`, `BitBlt`) za glatko crtanje
