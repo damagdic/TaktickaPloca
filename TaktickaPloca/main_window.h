@@ -16,5 +16,8 @@ public:
 private:
     bool ctrlHeld_ = false;
     bool ctrlActivatedAddLine_ = false;
+    std::wstring LoadResString(UINT id) const;
+    void SyncViewRadio(UINT checkedID);
+    void SyncNormalCheck(bool isNormal);
 
 };

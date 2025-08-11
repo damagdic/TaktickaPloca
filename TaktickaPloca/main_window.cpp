@@ -6,17 +6,24 @@
 
 main_window::main_window() {}
 
-static void CheckViewRadio(HWND hWnd, UINT checkedID) {
-    HMENU m = GetMenu(hWnd);
-    HMENU view = GetSubMenu(m, 1);
+
+void main_window::SyncViewRadio(UINT checkedID) {
+    HMENU m = GetMenu(*this);
+    HMENU view = GetSubMenu(m, 1); // 
     CheckMenuRadioItem(view, ID_VIEW_FULL, ID_VIEW_HALF, checkedID, MF_BYCOMMAND);
 }
 
-static void SyncNormalCheck(HWND hwnd, bool isNormal) {
-    HMENU m = GetMenu(hwnd);
-    HMENU edit = GetSubMenu(m, 2); // Edit
+void main_window::SyncNormalCheck(bool isNormal) {
+    HMENU m = GetMenu(*this);
+    HMENU edit = GetSubMenu(m, 2); // EDIT  
     CheckMenuItem(edit, ID_EDIT_NORMAL,
         MF_BYCOMMAND | (isNormal ? MF_CHECKED : MF_UNCHECKED));
+}
+
+std::wstring main_window::LoadResString(UINT id) const {
+    wchar_t buf[512]{};
+    int n = LoadStringW(GetModuleHandle(nullptr), id, buf, (int)std::size(buf));
+    return (n > 0) ? std::wstring(buf, n) : L"";
 }
 
 
@@ -32,9 +39,9 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
         ploca.Resize(r.right, r.bottom);
 
         ploca.SetViewMode(TaktickaPloca::ViewMode::FullField);
-        CheckViewRadio(*this, ID_VIEW_FULL);
+        SyncViewRadio( ID_VIEW_FULL);
         ploca.SetMode(TaktickaPloca::Mode::Normal);
-        SyncNormalCheck(*this, true);
+        SyncNormalCheck( true);
         return 0;
     }
     case WM_SIZE: {
@@ -43,7 +50,7 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
         return 0;
     }
     case WM_LBUTTONDOWN: {
-        SetFocus(*this);
+        SetCapture(*this);
         int x = GET_X_LPARAM(lParam);
         int y = GET_Y_LPARAM(lParam);
         if (ploca.IsInAddLineMode())
@@ -54,6 +61,8 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
         return 0;
     }
     case WM_LBUTTONUP: {
+        if (GetCapture() == *this)
+            ReleaseCapture();
         int x = GET_X_LPARAM(lParam);
         int y = GET_Y_LPARAM(lParam);
         if (ploca.IsInAddLineMode())
@@ -79,7 +88,7 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
                 if (!ploca.IsInAddLineMode()) {
                     ploca.SetMode(TaktickaPloca::Mode::AddLine);
                     ctrlActivatedAddLine_ = true;      
-                    SyncNormalCheck(*this, false);     
+                    SyncNormalCheck(false);     
                 }
                 else {
                     ctrlActivatedAddLine_ = false;     
@@ -92,7 +101,7 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
             ctrlHeld_ = false;
             ctrlActivatedAddLine_ = false;
             ploca.SetMode(TaktickaPloca::Mode::Normal);
-            SyncNormalCheck(*this, true);              
+            SyncNormalCheck(true);              
             InvalidateRect(*this, nullptr, FALSE);
             return 0;
         }
@@ -107,7 +116,7 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
             if (ctrlActivatedAddLine_) {
                 ploca.SetMode(TaktickaPloca::Mode::Normal);
                 ctrlActivatedAddLine_ = false;
-                SyncNormalCheck(*this, true);        
+                SyncNormalCheck( true);        
                 InvalidateRect(*this, nullptr, FALSE);
             }
             return 0;
@@ -117,7 +126,7 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
             ctrlHeld_ = false;
             ctrlActivatedAddLine_ = false;
             ploca.SetMode(TaktickaPloca::Mode::Normal);
-            SyncNormalCheck(*this, true);
+            SyncNormalCheck(true);
             InvalidateRect(*this, nullptr, FALSE);
             return 0;
         }
@@ -128,19 +137,19 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
         switch (LOWORD(wParam)) {
         case ID_VIEW_FULL:
             ploca.SetViewMode(TaktickaPloca::ViewMode::FullField);
-            CheckViewRadio(*this, ID_VIEW_FULL);
+            SyncViewRadio(ID_VIEW_FULL);
             InvalidateRect(*this, nullptr, TRUE);
             return 0;
         case ID_VIEW_HALF:
             ploca.SetViewMode(TaktickaPloca::ViewMode::HalfField);
-			CheckViewRadio(*this, ID_VIEW_HALF);
+			SyncViewRadio(ID_VIEW_HALF);
             InvalidateRect(*this, nullptr, TRUE);
             return 0;
 
         case ID_LINE_ADDLINE:
             ploca.SetMode(TaktickaPloca::Mode::AddLine);
             ctrlActivatedAddLine_ = false;
-            SyncNormalCheck(*this, false);
+            SyncNormalCheck(false);
             return 0;
 
 		case ID_LINE_CLEARLASTLINE:
@@ -155,7 +164,7 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
         case ID_EDIT_NORMAL:
             ploca.SetMode(TaktickaPloca::Mode::Normal);
             ctrlActivatedAddLine_ = false;          
-            SyncNormalCheck(*this, true);
+            SyncNormalCheck(true);
             return 0;
 
         case ID_FILE_SAVETACTIC:
@@ -165,7 +174,7 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
             LoadTacticDialog();
             return 0;
         case IDM_ABOUT:
-            MessageBox(*this, L"Author: Damir Magdić\nVerzija: 1.0", L"This is football tactical board! ENJOY", MB_OK | MB_ICONINFORMATION);
+            MessageBox(*this, LoadResString(IDS_ABOUT_TEXT).c_str(), LoadResString(IDS_ABOUT_TITLE).c_str(), MB_OK | MB_ICONINFORMATION);
             return 0;
         case IDM_EXIT:
             PostMessage(*this, WM_CLOSE, 0, 0);
@@ -189,38 +198,66 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
 
 void main_window::SaveTacticDialog() {
     wchar_t filename[MAX_PATH] = L"";
-    OPENFILENAME ofn = { sizeof(ofn) };
+
+    // filter mora završiti s dodatnim \0
+    static const wchar_t* kFilter =
+        L"Tactic Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0\0";
+
+    OPENFILENAME ofn{};
+    ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = *this;
-    ofn.lpstrFilter = L"Tactic Files (*.txt)\0*.txt\0";
+    ofn.lpstrFilter = kFilter;
+    ofn.nFilterIndex = 1;
     ofn.lpstrFile = filename;
     ofn.nMaxFile = MAX_PATH;
-    ofn.Flags = OFN_OVERWRITEPROMPT;
     ofn.lpstrDefExt = L"txt";
+    ofn.Flags = OFN_EXPLORER | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY;
 
-    if (GetSaveFileName(&ofn)) {
-        if (!ploca.SaveTactic(filename))
-            MessageBox(*this, L"Save failed", L"Error", MB_ICONERROR);
-        else
-            MessageBox(*this, L"Saved!", L"Success", MB_OK);
+    if (GetSaveFileNameW(&ofn)) {
+        if (!ploca.SaveTactic(filename)) {
+            MessageBox(*this,
+                LoadResString(IDS_SAVE_FAIL).c_str(),
+                LoadResString(IDS_APP_TITLE).c_str(),
+                MB_ICONERROR);
+        }
+        else {
+            MessageBox(*this,
+                LoadResString(IDS_SAVE_OK).c_str(),
+                LoadResString(IDS_APP_TITLE).c_str(),
+                MB_OK);
+        }
     }
 }
 
 void main_window::LoadTacticDialog() {
     wchar_t filename[MAX_PATH] = L"";
-    OPENFILENAME ofn = { sizeof(ofn) };
+
+    static const wchar_t* kFilter =
+        L"Tactic Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0\0";
+
+    OPENFILENAME ofn{};
+    ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = *this;
-    ofn.lpstrFilter = L"Tactic Files (*.txt)\0*.txt\0";
+    ofn.lpstrFilter = kFilter;
+    ofn.nFilterIndex = 1;
     ofn.lpstrFile = filename;
     ofn.nMaxFile = MAX_PATH;
-    ofn.Flags = OFN_FILEMUSTEXIST;
     ofn.lpstrDefExt = L"txt";
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 
-    if (GetOpenFileName(&ofn)) {
-        if (!ploca.LoadTactic(filename))
-            MessageBox(*this, L"Load failed", L"Error", MB_ICONERROR);
+    if (GetOpenFileNameW(&ofn)) {
+        if (!ploca.LoadTactic(filename)) {
+            MessageBox(*this,
+                LoadResString(IDS_LOAD_FAIL).c_str(),
+                LoadResString(IDS_APP_TITLE).c_str(),
+                MB_ICONERROR);
+        }
         else {
             InvalidateRect(*this, nullptr, TRUE);
-            MessageBox(*this, L"Loaded!", L"Success", MB_OK);
+            MessageBox(*this,
+                LoadResString(IDS_LOAD_OK).c_str(),
+                LoadResString(IDS_APP_TITLE).c_str(),
+                MB_OK);
         }
     }
 }

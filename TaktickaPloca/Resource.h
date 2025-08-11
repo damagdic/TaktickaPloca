@@ -38,3 +38,15 @@
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
+
+
+// STRING RESOURCES
+
+#define IDS_APP_TITLE        1000
+#define IDS_ABOUT_TITLE      1001
+#define IDS_ABOUT_TEXT       1002
+#define IDS_SAVE_OK          1003
+#define IDS_SAVE_FAIL        1004
+#define IDS_LOAD_OK          1005
+#define IDS_LOAD_FAIL        1006
+#define IDS_ERR_BAD_FILE     1007
