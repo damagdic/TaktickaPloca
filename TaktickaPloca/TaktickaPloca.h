@@ -67,15 +67,15 @@ private:
     bool IsInsideBall(int x, int y);
 
 
-    void DrawField(HDC dc, int width, int height);
-    void DrawGoals(HDC dc, int width, int height);
-    void DrawBoxes(HDC dc, int width, int height);
-    void DrawPenaltyPointsAndCircle(HDC dc, int width, int height);
-    void DrawPlayers(HDC dc, int width, int height);
-    void DrawHalfField(HDC dc, int width, int height);
-    void DrawPlayersHalf(HDC dc, int width, int height);
-    void DrawBall(HDC dc, int cx, int cy, int r);
-    void DrawLines(HDC dc);
+    void DrawField(HDC hdc, int width, int height);
+    void DrawGoals(HDC hdc, int width, int height);
+    void DrawBoxes(HDC hdc, int width, int height);
+    void DrawPenaltyPointsAndCircle(HDC hdc, int width, int height);
+    void DrawPlayers(HDC hdc, int width, int height);
+    void DrawHalfField(HDC hdc, int width, int height);
+    void DrawPlayersHalf(HDC hdc, int width, int height);
+    void DrawBall(HDC hdc, int cx, int cy, int r);
+    void DrawLines(HDC hdc);
     void ResetPositions();
     void InitPositions();
 };

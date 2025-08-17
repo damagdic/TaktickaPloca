@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <string>
 #include <fstream>
+#include <tchar.h>
 
 
 TaktickaPloca::TaktickaPloca() {
@@ -138,94 +139,90 @@ void TaktickaPloca::Draw(HDC hdc) {
     int width = windowWidth;
     int height = windowHeight;
 
-    dc memDC(hdc);
+    mem_dc buffer(hdc);
 
-    brush green(memDC, RGB(0, 128, 0));
+    gdi_brush field_brush(RGB(0, 128, 0));
     RECT r{ 0, 0, width, height };
-    FillRect(memDC, &r, green.get());  
+    FillRect(buffer, &r, (HBRUSH)field_brush);
 
 
-    pen white(memDC, RGB(255, 255, 255), 3);
+    gdi_pen whitePen(RGB(255, 255, 255), 3);
+    selector usePen(buffer, (HPEN)whitePen);
 
     if (currentView == ViewMode::FullField) {
-        DrawField(memDC, width, height);
-        DrawGoals(memDC, width, height);
-        DrawBoxes(memDC, width, height);
-        DrawPenaltyPointsAndCircle(memDC, width, height);
-        DrawPlayers(memDC, width, height);
-        DrawLines(memDC);
+        DrawField(buffer, width, height);
+        DrawGoals(buffer, width, height);
+        DrawBoxes(buffer, width, height);
+        DrawPenaltyPointsAndCircle(buffer, width, height);
+        DrawPlayers(buffer, width, height);
+        DrawLines(buffer);
     }
     else {
-        DrawHalfField(memDC, width, height);
-        DrawPlayersHalf(memDC, width, height);
-        DrawLines(memDC);
+        DrawHalfField(buffer, width, height);
+        DrawPlayersHalf(buffer, width, height);
+        DrawLines(buffer);
     }
 }
 
 
-void TaktickaPloca::DrawField(HDC dc, int width, int height) {
+void TaktickaPloca::DrawField(HDC hdc, int width, int height) {
     int marginX = width / 20;
     int marginY = height / 20;
 
-    pen p(dc, RGB(255, 255, 255), 2);
+    MoveToEx(hdc, marginX, marginY, nullptr);
+    LineTo(hdc, width - marginX, marginY);
+    LineTo(hdc, width - marginX, height - marginY);
+    LineTo(hdc, marginX, height - marginY);
+    LineTo(hdc, marginX, marginY);
 
-    MoveToEx(dc, marginX, marginY, nullptr);
-    LineTo(dc, width - marginX, marginY);
-    LineTo(dc, width - marginX, height - marginY);
-    LineTo(dc, marginX, height - marginY);
-    LineTo(dc, marginX, marginY);
-
-    MoveToEx(dc, width / 2, marginY, nullptr);
-    LineTo(dc, width / 2, height - marginY);
+    MoveToEx(hdc, width / 2, marginY, nullptr);
+    LineTo(hdc, width / 2, height - marginY);
 }
 
-void TaktickaPloca::DrawGoals(HDC dc, int width, int height) {
+void TaktickaPloca::DrawGoals(HDC hdc, int width, int height) {
     int marginX = width / 20;
     int marginY = height / 20;
     int goalWidth = (height - 2 * marginY) / 4;
     int goalOffsetY = (height - goalWidth) / 2;
     int goalDepth = width / 50;
 
-    pen p(dc, RGB(255, 255, 255), 2);
-
-    Rectangle(dc, marginX - goalDepth, goalOffsetY, marginX, goalOffsetY + goalWidth);
-    Rectangle(dc, width - marginX, goalOffsetY, width - marginX + goalDepth, goalOffsetY + goalWidth);
+    Rectangle(hdc, marginX - goalDepth, goalOffsetY, marginX, goalOffsetY + goalWidth);
+    Rectangle(hdc, width - marginX, goalOffsetY, width - marginX + goalDepth, goalOffsetY + goalWidth);
 }
 
-void TaktickaPloca::DrawBoxes(HDC dc, int width, int height) {
+
+void TaktickaPloca::DrawBoxes(HDC hdc, int width, int height) {
     int marginX = width / 20;
     int marginY = height / 20;
     int goalWidth = (height - 2 * marginY) / 4;
 
-    null_brush nb(dc);
+    selector noFill(hdc, GetStockObject(HOLLOW_BRUSH)); 
 
-    // boxes
     int boxWidth = width / 8;
     int boxHeight = goalWidth * 2;
     int boxY1 = (height - boxHeight) / 2;
     int boxY2 = (height + boxHeight) / 2;
 
-    Rectangle(dc, marginX, boxY1, marginX + boxWidth, boxY2);
-    Rectangle(dc, width - marginX - boxWidth, boxY1, width - marginX, boxY2);
+    Rectangle(hdc, marginX, boxY1, marginX + boxWidth, boxY2);
+    Rectangle(hdc, width - marginX - boxWidth, boxY1, width - marginX, boxY2);
 
-    // five meters line
     int smallBoxWidth = width / 20;
     int smallBoxHeight = static_cast<int>(goalWidth * 1.2);
     int smallBoxY1 = (height - smallBoxHeight) / 2;
     int smallBoxY2 = (height + smallBoxHeight) / 2;
 
-    Rectangle(dc, marginX, smallBoxY1, marginX + smallBoxWidth, smallBoxY2);
-    Rectangle(dc, width - marginX - smallBoxWidth, smallBoxY1, width - marginX, smallBoxY2);
+    Rectangle(hdc, marginX, smallBoxY1, marginX + smallBoxWidth, smallBoxY2);
+    Rectangle(hdc, width - marginX - smallBoxWidth, smallBoxY1, width - marginX, smallBoxY2);
 }
 
-void TaktickaPloca::DrawPenaltyPointsAndCircle(HDC dc, int width, int height) {
+void TaktickaPloca::DrawPenaltyPointsAndCircle(HDC hdc, int width, int height) {
 
 
     int marginX = width / 20;
     int goalWidth = (height - 2 * (height / 20)) / 4;
     int boxWidth = width / 8;
 
-    null_brush nb(dc);  
+    selector noFill(hdc, GetStockObject(HOLLOW_BRUSH));
 
     // penalty spots
     int penaltyRadius = 3;
@@ -233,14 +230,14 @@ void TaktickaPloca::DrawPenaltyPointsAndCircle(HDC dc, int width, int height) {
     int penaltyLeftX = static_cast<int>(marginX + boxWidth * 0.75);
     int penaltyRightX = static_cast<int>(width - marginX - boxWidth * 0.75);
 
-    Ellipse(dc, penaltyLeftX - penaltyRadius, penaltyY - penaltyRadius,
+    Ellipse(hdc, penaltyLeftX - penaltyRadius, penaltyY - penaltyRadius,
         penaltyLeftX + penaltyRadius, penaltyY + penaltyRadius);
-    Ellipse(dc, penaltyRightX - penaltyRadius, penaltyY - penaltyRadius,
+    Ellipse(hdc, penaltyRightX - penaltyRadius, penaltyY - penaltyRadius,
         penaltyRightX + penaltyRadius, penaltyY + penaltyRadius);
 
     // center circle
     int circleRadius = (width < height ? width : height) / 10;
-    Ellipse(dc, width / 2 - circleRadius, height / 2 - circleRadius,
+    Ellipse(hdc, width / 2 - circleRadius, height / 2 - circleRadius,
         width / 2 + circleRadius, height / 2 + circleRadius);
 
     // halfcircles
@@ -248,102 +245,133 @@ void TaktickaPloca::DrawPenaltyPointsAndCircle(HDC dc, int width, int height) {
     int arcCenterY = height / 2;
 
     int leftArcCenterX = marginX + boxWidth;
-    Arc(dc, leftArcCenterX - arcRadius, arcCenterY - arcRadius,
+    Arc(hdc, leftArcCenterX - arcRadius, arcCenterY - arcRadius,
         leftArcCenterX + arcRadius, arcCenterY + arcRadius,
         leftArcCenterX, arcCenterY + arcRadius,
         leftArcCenterX, arcCenterY - arcRadius);
 
     int rightArcCenterX = width - marginX - boxWidth;
-    Arc(dc, rightArcCenterX - arcRadius, arcCenterY - arcRadius,
+    Arc(hdc, rightArcCenterX - arcRadius, arcCenterY - arcRadius,
         rightArcCenterX + arcRadius, arcCenterY + arcRadius,
         rightArcCenterX, arcCenterY - arcRadius,
         rightArcCenterX, arcCenterY + arcRadius);
 }
 
-void TaktickaPloca::DrawPlayers(HDC dc, int width, int height) {
+void TaktickaPloca::DrawPlayers(HDC hdc, int width, int height) {
     int marginX = width / 20;
     int marginY = height / 20;
     int playerRadius = (width < height ? width : height) / 40;
 
-	// white players
-    brush white(dc, RGB(255, 255, 255));
-    selector selWhite(dc, white.get());
+    // Font (RAII) + selector
+    int pointSize = static_cast<int>(playerRadius * 1.2);
+    gdi_font bold(pointSize, TEXT("Segoe UI"), FW_BOLD);
+    selector useFont(hdc, (HFONT)bold);
+    SetBkMode(hdc, TRANSPARENT);
 
-    SetBkMode(dc, TRANSPARENT);
-    int pointSize = static_cast<int>(playerRadius * 1.2);  
-    HFONT boldFont = create_bold_font(pointSize);
-    font selFont(dc, boldFont);
-
+    // Igrači - bijeli tim
     for (size_t i = 0; i < players.size(); ++i) {
         const auto& p = players[i];
         int px = static_cast<int>(marginX + p.xRatio * (width - 2 * marginX));
         int py = static_cast<int>(marginY + p.yRatio * (height - 2 * marginY));
 
-        std::wstring number = std::to_wstring(i + 1);
+        RECT r{ px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius };
 
-        SetTextColor(dc, RGB(0, 0, 0));
+        // bez ruba: stock NULL_PEN
+        selector noPen(hdc, GetStockObject(NULL_PEN));
 
         if (i == 0) {
-            // blue keeper
-            pen noPen(dc, RGB(0, 0, 0), 0, PS_NULL);
-            selector selPen(dc, noPen.h);
-            brush blue(dc, RGB(0, 128, 255));
-            selector selBlue(dc, blue.get());
-            ::Ellipse(dc, px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius);
-            RECT r{ px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius };
-            DrawTextW(dc, number.c_str(), -1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+            gdi_brush blue(RGB(0, 128, 255));
+            selector useBlue(hdc, (HBRUSH)blue);
+            Ellipse(hdc, r.left, r.top, r.right, r.bottom);
+            SetTextColor(hdc, RGB(0, 0, 0));
         }
         else {
-            
-            pen noPen(dc, RGB(0, 0, 0), 0, PS_NULL);
-            selector selPen(dc, noPen.h);
-            ::Ellipse(dc, px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius);
-            RECT r{ px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius };
-            DrawTextW(dc, number.c_str(), -1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+            gdi_brush white(RGB(255, 255, 255));
+            selector useWhite(hdc, (HBRUSH)white);
+            Ellipse(hdc, r.left, r.top, r.right, r.bottom);
+            SetTextColor(hdc, RGB(0, 0, 0));
         }
 
-
+        std::wstring number = std::to_wstring(i + 1);
+        DrawText(hdc, number.c_str(), -1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     }
 
-
+    // Protivnici
     for (size_t i = 0; i < opponents.size(); ++i) {
         const auto& p = opponents[i];
         int px = static_cast<int>(marginX + p.xRatio * (width - 2 * marginX));
         int py = static_cast<int>(marginY + p.yRatio * (height - 2 * marginY));
 
-        std::wstring number = std::to_wstring(i + 1);
+        RECT r{ px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius };
 
-        SetBkMode(dc, TRANSPARENT);
-        font selFont(dc, boldFont);  
-        SetTextColor(dc, RGB(255, 255, 255));
+        selector noPen(hdc, GetStockObject(NULL_PEN));
 
         if (i == 0) {
-            // white keeper
-            pen noPen(dc, RGB(0, 0, 0), 0, PS_NULL);
-            selector selPen(dc, noPen.h);
-            brush black(dc, RGB(0, 0, 0));
-            selector selBlack(dc, black.get());
-            Ellipse(dc, px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius);
+            gdi_brush black(RGB(0, 0, 0));
+            selector useBlack(hdc, (HBRUSH)black);
+            Ellipse(hdc, r.left, r.top, r.right, r.bottom);
         }
         else {
-            // red players
-            pen noPen(dc, RGB(0, 0, 0), 0, PS_NULL);
-            selector selPen(dc, noPen.h);
-            brush redBrush(dc, RGB(255, 0, 0));
-            selector selRed(dc, redBrush.get());
-            Ellipse(dc, px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius);
+            gdi_brush red(RGB(255, 0, 0));
+            selector useRed(hdc, (HBRUSH)red);
+            Ellipse(hdc, r.left, r.top, r.right, r.bottom);
         }
 
-        // number centered
-        RECT r{ px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius };
-        DrawTextW(dc, number.c_str(), -1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+        SetTextColor(hdc, RGB(255, 255, 255));
+        std::wstring number = std::to_wstring(i + 1);
+        DrawText(hdc, number.c_str(), -1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     }
 
+    // Lopta
     int ballRadius = playerRadius / 2;
     int bx = static_cast<int>(marginX + ball.xRatio * (width - 2 * marginX));
     int by = static_cast<int>(marginY + ball.yRatio * (height - 2 * marginY));
+    DrawBall(hdc, bx, by, ballRadius);
+}
 
-    DrawBall(dc, bx, by, ballRadius);
+
+void TaktickaPloca::DrawPlayersHalf(HDC hdc, int width, int height) {
+    int marginX = width / 20;
+    int marginY = height / 20;
+    int playerRadius = (width < height ? width : height) / 40;
+
+    int fieldWidth = width - 2 * marginX;
+    int fieldHeight = height - 2 * marginY;
+
+    gdi_font bold(static_cast<int>(playerRadius * 1.2), TEXT("Segoe UI"), FW_BOLD);
+    selector useFont(hdc, (HFONT)bold);
+    SetBkMode(hdc, TRANSPARENT);
+
+    for (size_t i = 0; i < players.size(); ++i) {
+        const auto& p = players[i];
+        int px = static_cast<int>(marginX + (p.xRatio * 2) * fieldWidth);
+        int py = static_cast<int>(marginY + p.yRatio * fieldHeight);
+
+        RECT r{ px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius };
+
+        selector noPen(hdc, GetStockObject(NULL_PEN));
+
+        if (i == 0) {
+            gdi_brush blue(RGB(0, 128, 255));
+            selector useBlue(hdc, (HBRUSH)blue);
+            Ellipse(hdc, r.left, r.top, r.right, r.bottom);
+            SetTextColor(hdc, RGB(0, 0, 0));
+        }
+        else {
+            gdi_brush white(RGB(255, 255, 255));
+            selector useWhite(hdc, (HBRUSH)white);
+            Ellipse(hdc, r.left, r.top, r.right, r.bottom);
+            SetTextColor(hdc, RGB(0, 0, 0));
+        }
+
+        std::wstring number = std::to_wstring(i + 1);
+        DrawText(hdc, number.c_str(), -1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    }
+
+    int ballRadius = playerRadius / 2;
+    int bx = static_cast<int>(marginX + ball.xRatio * fieldWidth * 2);
+    int by = static_cast<int>(marginY + ball.yRatio * fieldHeight);
+    DrawBall(hdc, bx, by, ballRadius);
 }
 
 void TaktickaPloca::DrawHalfField(HDC dc, int width, int height) {
@@ -365,71 +393,25 @@ void TaktickaPloca::DrawHalfField(HDC dc, int width, int height) {
     Rectangle(dc, marginX - goalDepth, goalOffsetY, marginX, goalOffsetY + goalWidth);
 }
 
-void TaktickaPloca::DrawPlayersHalf(HDC dc, int width, int height) {
-    int marginX = width / 20;
-    int marginY = height / 20;
-    int playerRadius = (width < height ? width : height) / 40;
 
-    int fieldWidth = width - 2 * marginX;
-    int fieldHeight = height - 2 * marginY;
 
-    int pointSize = static_cast<int>(playerRadius * 1.2);
-    HFONT boldFont = create_bold_font(pointSize);
-    SetBkMode(dc, TRANSPARENT);
+void TaktickaPloca::DrawBall(HDC hdc, int cx, int cy, int r) {
+    gdi_brush orange(RGB(255, 140, 0));
+    gdi_pen   blackPen(RGB(0, 0, 0), 2);
 
- 
-    for (size_t i = 0; i < players.size(); ++i) {
-        const auto& p = players[i];
+    selector useBrush(hdc, (HBRUSH)orange);
+    selector usePen(hdc, (HPEN)blackPen);
+    Ellipse(hdc, cx - r, cy - r, cx + r, cy + r);
 
-        int px = static_cast<int>(marginX + (p.xRatio * 2) * fieldWidth);  // scalling for half field
-        int py = static_cast<int>(marginY + p.yRatio * fieldHeight);
-        std::wstring number = std::to_wstring(i + 1);
 
-        // selected font and color
-        font selFont(dc, boldFont);
-        SetTextColor(dc, RGB(0, 0, 0));
-
-        pen noPen(dc, RGB(0, 0, 0), 0, PS_NULL);
-        selector selPen(dc, noPen.h);
-
-        if (i == 0) {
-            // blue keeper
-            brush blue(dc, RGB(0, 128, 255));
-            selector selBlue(dc, blue.get());
-            Ellipse(dc, px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius);
-        }
-        else {
-			// white players
-            brush white(dc, RGB(255, 255, 255));
-            selector selWhite(dc, white.get());
-            Ellipse(dc, px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius);
-        }
-
-        // centered number
-        RECT r{ px - playerRadius, py - playerRadius, px + playerRadius, py + playerRadius };
-        DrawTextW(dc, number.c_str(), -1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-    }
-
-    // ball
-    int ballRadius = playerRadius / 2;
-    int bx = static_cast<int>(marginX + ball.xRatio * fieldWidth * 2);
-    int by = static_cast<int>(marginY + ball.yRatio * fieldHeight);
-
-    DrawBall(dc, bx, by, ballRadius);
+    gdi_brush blk(RGB(0, 0, 0));
+    selector useBlk(hdc, (HBRUSH)blk);
+    Rectangle(hdc, cx, cy, cx + 1, cy + 1);
 }
 
-void TaktickaPloca::DrawBall(HDC dc, int cx, int cy, int r) {
-    brush orange(dc, RGB(255, 140, 0)); selector selOrange(dc, orange.get());
-    pen black(dc, RGB(0, 0, 0), 2); selector selBlack(dc, black.h);
-    Ellipse(dc, cx - r, cy - r, cx + r, cy + r);
-
-    brush blk(dc, RGB(0, 0, 0)); selector selBlk(dc, blk.get());
-    Ellipse(dc, cx, cy, cx, cy);
-}
-
-void TaktickaPloca::DrawLines(HDC dc) {
-    pen p(dc, RGB(0, 0, 0), 2);  // black line
-    selector selPen(dc, p);
+void TaktickaPloca::DrawLines(HDC hdc) {
+    gdi_pen p(RGB(0, 0, 0), 2);
+    selector usePen(hdc, (HPEN)p);
 
     int marginX = windowWidth / 20;
     int marginY = windowHeight / 20;
@@ -443,27 +425,23 @@ void TaktickaPloca::DrawLines(HDC dc) {
         int x2 = static_cast<int>(marginX + line.end.xRatio * fieldWidth * scaleX);
         int y2 = static_cast<int>(marginY + line.end.yRatio * fieldHeight);
 
-        // line
-        MoveToEx(dc, x1, y1, nullptr);
-        LineTo(dc, x2, y2);
+        MoveToEx(hdc, x1, y1, nullptr);
+        LineTo(hdc, x2, y2);
 
-        // arrow
         const double angle = atan2(y2 - y1, x2 - x1);
         const int arrowLength = 10;
-        const int arrowWidth = 5;
-
-        POINT arrow[3];
-        arrow[0] = { x2, y2 };
-        arrow[1] = {
-            static_cast<int>(x2 - arrowLength * cos(angle - 0.3)),
-            static_cast<int>(y2 - arrowLength * sin(angle - 0.3))
-        };
-        arrow[2] = {
-            static_cast<int>(x2 - arrowLength * cos(angle + 0.3)),
-            static_cast<int>(y2 - arrowLength * sin(angle + 0.3))
+        POINT arrow[3]{
+            { x2, y2 },
+            { static_cast<int>(x2 - arrowLength * cos(angle - 0.3)),
+              static_cast<int>(y2 - arrowLength * sin(angle - 0.3)) },
+            { static_cast<int>(x2 - arrowLength * cos(angle + 0.3)),
+              static_cast<int>(y2 - arrowLength * sin(angle + 0.3)) }
         };
 
-        Polygon(dc, arrow, 3);
+        // Za ispunjene trokutove strelica treba i brush (crni)
+        gdi_brush black(RGB(0, 0, 0));
+        selector useBrush(hdc, (HBRUSH)black);
+        Polygon(hdc, arrow, 3);
     }
 }
 

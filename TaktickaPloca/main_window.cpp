@@ -3,6 +3,7 @@
 #include "resource.h"
 #include "gdi.h"
 #include <commdlg.h>
+#include <tchar.h>
 
 main_window::main_window() {}
 
@@ -22,7 +23,7 @@ void main_window::SyncNormalCheck(bool isNormal) {
 
 std::wstring main_window::LoadResString(UINT id) const {
     wchar_t buf[512]{};
-    int n = LoadStringW(GetModuleHandle(nullptr), id, buf, (int)std::size(buf));
+    int n = LoadString(GetModuleHandle(nullptr), id, buf, (int)std::size(buf)); 
     return (n > 0) ? std::wstring(buf, n) : L"";
 }
 
@@ -197,11 +198,10 @@ LRESULT main_window::on_message(UINT message, WPARAM wParam, LPARAM lParam) {
 }
 
 void main_window::SaveTacticDialog() {
-    wchar_t filename[MAX_PATH] = L"";
+    TCHAR filename[MAX_PATH] = TEXT("");
 
-    // filter mora završiti s dodatnim \0
-    static const wchar_t* kFilter =
-        L"Tactic Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0\0";
+    static const TCHAR* kFilter =
+        TEXT("Tactic Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0\0"); 
 
     OPENFILENAME ofn{};
     ofn.lStructSize = sizeof(ofn);
@@ -210,11 +210,11 @@ void main_window::SaveTacticDialog() {
     ofn.nFilterIndex = 1;
     ofn.lpstrFile = filename;
     ofn.nMaxFile = MAX_PATH;
-    ofn.lpstrDefExt = L"txt";
+    ofn.lpstrDefExt = TEXT("txt");
     ofn.Flags = OFN_EXPLORER | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY;
 
-    if (GetSaveFileNameW(&ofn)) {
-        if (!ploca.SaveTactic(filename)) {
+    if (GetSaveFileName(&ofn)) { 
+        if (!ploca.SaveTactic(filename)) { 
             MessageBox(*this,
                 LoadResString(IDS_SAVE_FAIL).c_str(),
                 LoadResString(IDS_APP_TITLE).c_str(),
@@ -230,10 +230,10 @@ void main_window::SaveTacticDialog() {
 }
 
 void main_window::LoadTacticDialog() {
-    wchar_t filename[MAX_PATH] = L"";
+    TCHAR filename[MAX_PATH] = TEXT("");
 
-    static const wchar_t* kFilter =
-        L"Tactic Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0\0";
+    static const TCHAR* kFilter =
+        TEXT("Tactic Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0\0");
 
     OPENFILENAME ofn{};
     ofn.lStructSize = sizeof(ofn);
@@ -242,10 +242,10 @@ void main_window::LoadTacticDialog() {
     ofn.nFilterIndex = 1;
     ofn.lpstrFile = filename;
     ofn.nMaxFile = MAX_PATH;
-    ofn.lpstrDefExt = L"txt";
+    ofn.lpstrDefExt = TEXT("txt");
     ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 
-    if (GetOpenFileNameW(&ofn)) {
+    if (GetOpenFileName(&ofn)) { 
         if (!ploca.LoadTactic(filename)) {
             MessageBox(*this,
                 LoadResString(IDS_LOAD_FAIL).c_str(),
