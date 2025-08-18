@@ -143,11 +143,11 @@ void TaktickaPloca::Draw(HDC hdc) {
 
     gdi_brush field_brush(RGB(0, 128, 0));
     RECT r{ 0, 0, width, height };
-    FillRect(buffer, &r, (HBRUSH)field_brush);
+    FillRect(buffer, &r, field_brush);
 
 
     gdi_pen whitePen(RGB(255, 255, 255), 3);
-    selector usePen(buffer, (HPEN)whitePen);
+    selector usePen(buffer, whitePen);
 
     if (currentView == ViewMode::FullField) {
         DrawField(buffer, width, height);
@@ -265,7 +265,7 @@ void TaktickaPloca::DrawPlayers(HDC hdc, int width, int height) {
     // Font (RAII) + selector
     int pointSize = static_cast<int>(playerRadius * 1.2);
     gdi_font bold(pointSize, TEXT("Segoe UI"), FW_BOLD);
-    selector useFont(hdc, (HFONT)bold);
+    selector useFont(hdc, bold);
     SetBkMode(hdc, TRANSPARENT);
 
     // Igrači - bijeli tim
@@ -281,13 +281,13 @@ void TaktickaPloca::DrawPlayers(HDC hdc, int width, int height) {
 
         if (i == 0) {
             gdi_brush blue(RGB(0, 128, 255));
-            selector useBlue(hdc, (HBRUSH)blue);
+            selector useBlue(hdc, blue);
             Ellipse(hdc, r.left, r.top, r.right, r.bottom);
             SetTextColor(hdc, RGB(0, 0, 0));
         }
         else {
             gdi_brush white(RGB(255, 255, 255));
-            selector useWhite(hdc, (HBRUSH)white);
+            selector useWhite(hdc, white);
             Ellipse(hdc, r.left, r.top, r.right, r.bottom);
             SetTextColor(hdc, RGB(0, 0, 0));
         }
@@ -308,12 +308,12 @@ void TaktickaPloca::DrawPlayers(HDC hdc, int width, int height) {
 
         if (i == 0) {
             gdi_brush black(RGB(0, 0, 0));
-            selector useBlack(hdc, (HBRUSH)black);
+            selector useBlack(hdc, black);
             Ellipse(hdc, r.left, r.top, r.right, r.bottom);
         }
         else {
             gdi_brush red(RGB(255, 0, 0));
-            selector useRed(hdc, (HBRUSH)red);
+            selector useRed(hdc, red);
             Ellipse(hdc, r.left, r.top, r.right, r.bottom);
         }
 
@@ -339,7 +339,7 @@ void TaktickaPloca::DrawPlayersHalf(HDC hdc, int width, int height) {
     int fieldHeight = height - 2 * marginY;
 
     gdi_font bold(static_cast<int>(playerRadius * 1.2), TEXT("Segoe UI"), FW_BOLD);
-    selector useFont(hdc, (HFONT)bold);
+    selector useFont(hdc, bold);
     SetBkMode(hdc, TRANSPARENT);
 
     for (size_t i = 0; i < players.size(); ++i) {
@@ -353,13 +353,13 @@ void TaktickaPloca::DrawPlayersHalf(HDC hdc, int width, int height) {
 
         if (i == 0) {
             gdi_brush blue(RGB(0, 128, 255));
-            selector useBlue(hdc, (HBRUSH)blue);
+            selector useBlue(hdc, blue);
             Ellipse(hdc, r.left, r.top, r.right, r.bottom);
             SetTextColor(hdc, RGB(0, 0, 0));
         }
         else {
             gdi_brush white(RGB(255, 255, 255));
-            selector useWhite(hdc, (HBRUSH)white);
+            selector useWhite(hdc, white);
             Ellipse(hdc, r.left, r.top, r.right, r.bottom);
             SetTextColor(hdc, RGB(0, 0, 0));
         }
@@ -399,19 +399,19 @@ void TaktickaPloca::DrawBall(HDC hdc, int cx, int cy, int r) {
     gdi_brush orange(RGB(255, 140, 0));
     gdi_pen   blackPen(RGB(0, 0, 0), 2);
 
-    selector useBrush(hdc, (HBRUSH)orange);
-    selector usePen(hdc, (HPEN)blackPen);
+    selector useBrush(hdc, orange);
+    selector usePen(hdc, blackPen);
     Ellipse(hdc, cx - r, cy - r, cx + r, cy + r);
 
 
     gdi_brush blk(RGB(0, 0, 0));
-    selector useBlk(hdc, (HBRUSH)blk);
+    selector useBlk(hdc, blk);
     Rectangle(hdc, cx, cy, cx + 1, cy + 1);
 }
 
 void TaktickaPloca::DrawLines(HDC hdc) {
     gdi_pen p(RGB(0, 0, 0), 2);
-    selector usePen(hdc, (HPEN)p);
+    selector usePen(hdc, p);
 
     int marginX = windowWidth / 20;
     int marginY = windowHeight / 20;
@@ -440,7 +440,7 @@ void TaktickaPloca::DrawLines(HDC hdc) {
 
         // Za ispunjene trokutove strelica treba i brush (crni)
         gdi_brush black(RGB(0, 0, 0));
-        selector useBrush(hdc, (HBRUSH)black);
+        selector useBrush(hdc, black);
         Polygon(hdc, arrow, 3);
     }
 }

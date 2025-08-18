@@ -10,13 +10,13 @@ main_window::main_window() {}
 
 void main_window::SyncViewRadio(UINT checkedID) {
     HMENU m = GetMenu(*this);
-    HMENU view = GetSubMenu(m, 1); // 
+    HMENU view = GetSubMenu(m, 1); 
     CheckMenuRadioItem(view, ID_VIEW_FULL, ID_VIEW_HALF, checkedID, MF_BYCOMMAND);
 }
 
 void main_window::SyncNormalCheck(bool isNormal) {
     HMENU m = GetMenu(*this);
-    HMENU edit = GetSubMenu(m, 2); // EDIT  
+    HMENU edit = GetSubMenu(m, 2);  
     CheckMenuItem(edit, ID_EDIT_NORMAL,
         MF_BYCOMMAND | (isNormal ? MF_CHECKED : MF_UNCHECKED));
 }

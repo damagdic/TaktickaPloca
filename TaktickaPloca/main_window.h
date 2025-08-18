@@ -7,7 +7,7 @@ class main_window : public nwp::window {
     TaktickaPloca ploca;
 
 public:
-    main_window();  // constructor
+    main_window();  
     LPCWSTR class_name() const override;
     LRESULT on_message(UINT message, WPARAM wParam, LPARAM lParam) override;
     void SaveTacticDialog();
